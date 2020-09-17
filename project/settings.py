@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'eventapp.apps.EventappConfig',
     'rest_framework',
     'crispy_forms',
+    'events',
 ]
 
 MIDDLEWARE = [

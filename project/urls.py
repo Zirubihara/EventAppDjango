@@ -16,7 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from events.views import home_viec, event_detail_view, events_list_view
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('eventapp.urls')),
+    path('', home_viec),
+    path('events', events_list_view),
+    path('events/<int:event_id>', event_detail_view),
 ]

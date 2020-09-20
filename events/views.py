@@ -1,6 +1,7 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
+from .forms import EventForm
 from .models import Event
 
 
@@ -9,9 +10,23 @@ def home_viec(request, *args, **kwargs):
     return render(request, "home.html")
 
 
+def event_create_view(request, *args, **kwargs):
+    form = EventForm(request.POST or None)
+    next_url = request.POST.get("next") or None
+    print("next url", next_url)
+    if form.is_valid():
+        obj = form.save(commit=False)
+        obj.save()
+        if next_url != None:
+            return redirect(next_url)
+        form = EventForm()
+    return render(request, 'components/form.html', context={"form": form})
+
+
 def events_list_view(request, *args, **kwargs):
     querySet = Event.objects.all()
-    events_list = [{"id": x.id, "name": x.name, "description": x.description, "text": x.text} for x in querySet]
+    events_list = [{"id": x.id, "name": x.name, "description": x.description, "text": x.text, "likes": 12} for x in
+                   querySet]
     data = {
         "response": events_list
     }

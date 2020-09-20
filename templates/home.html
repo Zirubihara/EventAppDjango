@@ -1,1 +1,87 @@
-porazka
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Dostosowywujemy sobie do mobilków przede wszystkim aby dzialalo zoomowanie dotykiem-->
+</head>
+<body>
+
+
+{% include "components/navbar.html" %}
+
+<div class="row text-center">
+    <div class="col">
+        <h1> Witaj w Event App </h1>
+    </div>
+</div>
+<div class="row" id="events">
+    Loading
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4 mx-auto col-10">
+        <form class="form" method="post" action="/create-events">
+            {% csrf_token %}
+            <input type="hidden" value="/" name="next">
+            <input class="form-control" type="text" name="name" placeholder="Wprowadź nazwę swojego wydarzenia">
+            <input class="form-control" type="text" name="description" placeholder="Wprowadź krótki opis swojego wydarzenia">
+            <textarea class="form-control" name="text" placeholder="Wprowadz opis swojego wydarzenia"></textarea>
+            <button type="submit" class="btn btn-primary"> Dodaj Event </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const eventsElement = document.getElementById("events")
+
+    const xhr = new XMLHttpRequest()
+    const method = 'GET'
+    const url = "/events"
+    const responseType = "json"
+
+    function handleDidLike(event_id, currentCount) {
+        console.log(event_id, currentCount)
+        currentCount++
+        return
+    }
+
+    function LikeBtn(event) {
+        return "<button class='btn btn-primary' onclick=handleDidLike(" + event.id + "," + event.likes + ")>" + event.likes + "Lubie To</button>"
+    }
+
+    function formatEventElement(event) {
+        let formattedEvent = "<div class='col-12 col-md-10 mx-auto py-3 border mb-4 event' id='event-'" + event.id + "'><p>" + event.description +
+            "</p><div class='btn-group'>" + LikeBtn(event) +
+            "</div></div>"
+        return formattedEvent
+    }
+
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.onload = function () {
+        const serverResponse = xhr.response
+        const listedItems = serverResponse.response
+        let finalEventStr = ""
+        let i;
+
+        for (i = 0; i < listedItems.length; i++) {
+            let eventObj = listedItems[i]
+            let currentItem = formatEventElement(eventObj)
+            finalEventStr += currentItem
+        }
+        eventsElement.innerHTML = finalEventStr
+
+        //console.log(listedItems)
+    }
+    xhr.send()
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+</body>
+</html>

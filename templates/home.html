@@ -24,24 +24,87 @@
 
 <div class="row mb-3">
     <div class="col-md-4 mx-auto col-10">
-        <form class="form" method="post" action="/create-events">
+        <form class="form" id="event-create-form" method="post" action="/create-events">
             {% csrf_token %}
             <input type="hidden" value="/" name="next">
-            <input class="form-control" type="text" name="name" placeholder="Wprowadź nazwę swojego wydarzenia">
-            <input class="form-control" type="text" name="description" placeholder="Wprowadź krótki opis swojego wydarzenia">
-            <textarea class="form-control" name="text" placeholder="Wprowadz opis swojego wydarzenia"></textarea>
-            <button type="submit" class="btn btn-primary"> Dodaj Event </button>
+            <input required='required' class="form-control" type="text" name="name"
+                   placeholder="Wprowadź nazwę swojego wydarzenia">
+            <input required='required' class="form-control" type="text" name="description"
+                   placeholder="Wprowadź krótki opis swojego wydarzenia">
+            <textarea required='required' class="form-control" name="text"
+                      placeholder="Wprowadz opis swojego wydarzenia"></textarea>
+            <button type="submit" class="btn btn-primary"> Dodaj Event</button>
         </form>
     </div>
 </div>
 
 <script>
-    const eventsElement = document.getElementById("events")
 
-    const xhr = new XMLHttpRequest()
-    const method = 'GET'
-    const url = "/events"
-    const responseType = "json"
+    function handleEventFormDidSubmit(event) {
+        event.preventDefault()
+        const myForm = event.target
+        const myFormData = new FormData(myForm)
+        const url = myForm.getAttribute("action")
+        const method = myForm.getAttribute("method")
+        const xhr = new XMLHttpRequest()
+        const responseType = "json"
+        xhr.responseType = responseType
+        xhr.open(method, url)
+        xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+        xhr.onload = function () {
+            if (xhr.status === 201) {
+                const newEventJson = xhr.response
+                const newEventElement = formatEventElement(newEventJson)
+                const ogHtml = eventsContainerelement.innerHTML
+                eventsContainerelement.innerHTML = newEventElement + ogHtml
+                myForm.reset()
+            } else if (xhr.status === 400) {
+                const errorJson = xhr.response
+                const  contentError = errorJson.content
+                let contentErrorMsg;
+                console.log(errorJson)
+            } else if (xhr.status === 500) {
+                alert("There was a server error, try again later")
+            }
+        }
+        xhr.onerror = function () {
+            alert("Error, try again later")
+        }
+        xhr.send(myFormData)
+    }
+
+    const eventCreateFormEl = document.getElementById("event-create-form")
+    eventCreateFormEl.addEventListener("submit", handleEventFormDidSubmit)
+
+    const eventsContainerelement = document.getElementById("events")
+
+    function loadEvents(eventsElement) {
+        const xhr = new XMLHttpRequest()
+        const method = 'GET'
+        const url = "/events"
+        const responseType = "json"
+
+        xhr.responseType = responseType
+        xhr.open(method, url)
+        xhr.onload = function () {
+            const serverResponse = xhr.response
+            const listedItems = serverResponse.response
+            let finalEventStr = ""
+            let i;
+
+            for (i = 0; i < listedItems.length; i++) {
+                let eventObj = listedItems[i]
+                let currentItem = formatEventElement(eventObj)
+                finalEventStr += currentItem
+            }
+            eventsElement.innerHTML = finalEventStr
+        }
+
+        xhr.send()
+    }
+
+    loadEvents(eventsContainerelement)
 
     function handleDidLike(event_id, currentCount) {
         console.log(event_id, currentCount)
@@ -60,28 +123,17 @@
         return formattedEvent
     }
 
-    xhr.responseType = responseType
-    xhr.open(method, url)
-    xhr.onload = function () {
-        const serverResponse = xhr.response
-        const listedItems = serverResponse.response
-        let finalEventStr = ""
-        let i;
 
-        for (i = 0; i < listedItems.length; i++) {
-            let eventObj = listedItems[i]
-            let currentItem = formatEventElement(eventObj)
-            finalEventStr += currentItem
-        }
-        eventsElement.innerHTML = finalEventStr
-
-        //console.log(listedItems)
-    }
-    xhr.send()
 </script>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
 </body>
 </html>

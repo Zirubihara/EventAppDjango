@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.utils.http import is_safe_url
 
 from .forms import EventForm
 from .models import Event
 
+ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 # Create your views here.
 def home_viec(request, *args, **kwargs):
@@ -13,19 +16,23 @@ def home_viec(request, *args, **kwargs):
 def event_create_view(request, *args, **kwargs):
     form = EventForm(request.POST or None)
     next_url = request.POST.get("next") or None
-    print("next url", next_url)
     if form.is_valid():
         obj = form.save(commit=False)
         obj.save()
-        if next_url != None:
+        if request.is_ajax():
+            return JsonResponse(obj.serialize(), status=201)
+        if next_url is not None and is_safe_url(next_url, ALLOWED_HOSTS):
             return redirect(next_url)
         form = EventForm()
+    if form.errors:
+        if request.is_ajax():
+            return JsonResponse(form.errors, status=400)
     return render(request, 'components/form.html', context={"form": form})
 
 
 def events_list_view(request, *args, **kwargs):
     querySet = Event.objects.all()
-    events_list = [{"id": x.id, "name": x.name, "description": x.description, "text": x.text, "likes": 12} for x in
+    events_list = [x.serialize() for x in
                    querySet]
     data = {
         "response": events_list

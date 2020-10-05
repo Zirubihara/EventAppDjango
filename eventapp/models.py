@@ -5,16 +5,16 @@ from django.db import models
 
 
 # Create your models here.
-class Uzytkownik(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    imie = models.CharField(max_length=30, verbose_name=("Imie"))
-    nazwisko = models.CharField(max_length=30, verbose_name=("Nazwisko"))
-    adresEmail = models.EmailField(unique=True, verbose_name=("Email"))
-    telefon = models.IntegerField(unique=True, blank=True, verbose_name=("Telefon"))
-    # branza
-    # lokalizacja
-    opis = models.CharField(max_length=2000, verbose_name=("Opis"))
+# class Uzytkownik(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     imie = models.CharField(max_length=30, verbose_name=("Imie"))
+#     nazwisko = models.CharField(max_length=30, verbose_name=("Nazwisko"))
+#     adresEmail = models.EmailField(unique=True, verbose_name=("Email"))
+#     telefon = models.IntegerField(unique=True, blank=True, verbose_name=("Telefon"))
+#     # branza
+#     # lokalizacja
+#     opis = models.CharField(max_length=2000, verbose_name=("Opis"))
 
 
 class Location(models.Model):

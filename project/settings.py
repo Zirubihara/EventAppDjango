@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'crispy_forms',
     'events',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +130,9 @@ LOGIN_REDIRECT_URL = 'event_list'
 LOGOUT_REDIRECT_URL = 'event_list'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}

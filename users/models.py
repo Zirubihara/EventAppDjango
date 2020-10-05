@@ -5,12 +5,13 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 from users.manager import CustomUserManager
+from .validators import validate_eventapp_email
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=50)
     second_name = models.CharField(max_length=50)
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_('email address'), unique=True, validators=[validate_eventapp_email()])
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 
